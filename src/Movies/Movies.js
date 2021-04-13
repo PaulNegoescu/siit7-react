@@ -22,6 +22,7 @@ export function Movies() {
 
   return (
     <section className={styles['movie-list']}>
+      <h1>Movies</h1>
       {movies.map((movie) => (
         <Movie key={movie._id} data={movie} />
       ))}

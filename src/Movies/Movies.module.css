@@ -1,0 +1,21 @@
+.movie-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.movie {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.movie a {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+}
+
+.movie a:hover {
+  text-decoration: underline;
+}

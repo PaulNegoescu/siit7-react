@@ -1,7 +1,7 @@
-import { useParams } from 'react-router';
+// import { useParams } from 'react-router';
 
 export function MovieDetails() {
-  const { id } = useParams();
+  //   const { id } = useParams();
 
   return <h1>Titlul filmului</h1>;
 }

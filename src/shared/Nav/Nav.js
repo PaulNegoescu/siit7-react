@@ -20,7 +20,7 @@ export function Nav() {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+          <ul className="navbar-nav w-100 mb-2 mb-lg-0">
             <li className="nav-item">
               <NavLink className="nav-link" aria-current="page" exact to="/">
                 Home
@@ -34,6 +34,17 @@ export function Nav() {
             <li className="nav-item">
               <NavLink className="nav-link" to="/movies">
                 Movies
+              </NavLink>
+            </li>
+
+            <li className="nav-item ms-auto">
+              <NavLink className="nav-link" to="/login">
+                Login
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink className="nav-link" to="/register">
+                Register
               </NavLink>
             </li>
           </ul>

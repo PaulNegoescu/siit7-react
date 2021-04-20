@@ -1,6 +1,8 @@
 import 'bootstrap/dist/js/bootstrap.bundle';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { GlobalMessage } from '../shared/GlobalMessage';
+import { useAuthContext } from './AuthContext';
 
 export function Auth() {
   const [values, setValues] = useState({
@@ -13,6 +15,9 @@ export function Auth() {
     password: '',
     retypePassword: '',
   });
+  const [globalMessage, setGlobalMessage] = useState('');
+  //   const { token, setToken } = useContext(AuthContext)
+  const { setToken, setUser } = useAuthContext();
 
   const location = useLocation();
   const isRegister = location.pathname.includes('register');
@@ -59,7 +64,7 @@ export function Auth() {
 
     const { retypePassword, ...onlyUsefulParams } = values;
 
-    const data = new URLSearchParams(onlyUsefulParams);
+    // const data = new URLSearchParams(onlyUsefulParams);
 
     const res = await fetch(
       `https://movies-app-siit.herokuapp.com/auth/${
@@ -68,16 +73,24 @@ export function Auth() {
       {
         method: 'POST',
         headers: {
-          'Content-type': 'application/x-www-form-urlencoded',
+          'Content-type': 'application/json',
         },
-        body: data.toString(),
+        body: JSON.stringify(onlyUsefulParams),
       }
     ).then((res) => res.json());
 
-    //{authenticated: true, accessToken: "KGl9Or9GDZ0IO-MsSlm9FzHDIrdhE73F"}
     //{message: "User not found"}
     //{message: "Username already existing"}
-    console.log(res);
+    if (res.message) {
+      setGlobalMessage(res.message);
+      return;
+    }
+
+    //{authenticated: true, accessToken: "KGl9Or9GDZ0IO-MsSlm9FzHDIrdhE73F"}
+    if (res.authenticated) {
+      setToken(res.accessToken);
+      setUser(values.username);
+    }
   }
 
   function isFormValid() {
@@ -89,16 +102,16 @@ export function Auth() {
       isValid = false;
     }
 
-    if (
-      /((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/.test(
-        values.password
-      ) === false
-    ) {
-      newErrors.password = 'Password needs to be more complex.';
-      isValid = false;
-    }
+    // if (
+    //   /((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/.test(
+    //     values.password
+    //   ) === false
+    // ) {
+    //   newErrors.password = 'Password needs to be more complex.';
+    //   isValid = false;
+    // }
 
-    if (values.retypePassword !== values.password) {
+    if (isRegister && values.retypePassword !== values.password) {
       newErrors.retypePassword = 'The passwords need to be the same.';
       isValid = false;
     }
@@ -106,6 +119,10 @@ export function Auth() {
     setErrors(newErrors);
 
     return isValid;
+  }
+
+  function handleGlobalMessageDismiss() {
+    setGlobalMessage('');
   }
 
   return (
@@ -163,6 +180,13 @@ export function Auth() {
         {title}
       </button>
       {alternateLink[title]}
+
+      <GlobalMessage
+        type="error"
+        title="An error ocurred"
+        message={globalMessage}
+        onDismiss={handleGlobalMessageDismiss}
+      />
     </form>
   );
 }

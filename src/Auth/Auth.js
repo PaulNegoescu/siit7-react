@@ -1,7 +1,8 @@
 import 'bootstrap/dist/js/bootstrap.bundle';
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { GlobalMessage } from '../shared/GlobalMessage';
+import { useEffect, useState } from 'react';
+import { Link, useHistory, useLocation } from 'react-router-dom';
+import { apiUrl } from '../shared/config';
+import { useGlobalMessage } from '../shared/GlobalMessage';
 import { useAuthContext } from './AuthContext';
 
 export function Auth() {
@@ -15,9 +16,16 @@ export function Auth() {
     password: '',
     retypePassword: '',
   });
-  const [globalMessage, setGlobalMessage] = useState('');
+  const createMessage = useGlobalMessage();
   //   const { token, setToken } = useContext(AuthContext)
-  const { setToken, setUser } = useAuthContext();
+  const { token, setToken, setUser } = useAuthContext();
+  const history = useHistory();
+
+  useEffect(() => {
+    if (token) {
+      history.push('/');
+    }
+  }, [token, history]);
 
   const location = useLocation();
   const isRegister = location.pathname.includes('register');
@@ -67,9 +75,7 @@ export function Auth() {
     // const data = new URLSearchParams(onlyUsefulParams);
 
     const res = await fetch(
-      `https://movies-app-siit.herokuapp.com/auth/${
-        isRegister ? 'register' : 'login'
-      }`,
+      `${apiUrl}/auth/${isRegister ? 'register' : 'login'}`,
       {
         method: 'POST',
         headers: {
@@ -82,7 +88,7 @@ export function Auth() {
     //{message: "User not found"}
     //{message: "Username already existing"}
     if (res.message) {
-      setGlobalMessage(res.message);
+      createMessage('error', 'Something bad happened!', res.message);
       return;
     }
 
@@ -90,6 +96,12 @@ export function Auth() {
     if (res.authenticated) {
       setToken(res.accessToken);
       setUser(values.username);
+      createMessage(
+        'success',
+        'Logged in successfully!',
+        'You have been logged in successfully!'
+      );
+      history.push('/');
     }
   }
 
@@ -121,8 +133,8 @@ export function Auth() {
     return isValid;
   }
 
-  function handleGlobalMessageDismiss() {
-    setGlobalMessage('');
+  if (token) {
+    return null;
   }
 
   return (
@@ -180,13 +192,6 @@ export function Auth() {
         {title}
       </button>
       {alternateLink[title]}
-
-      <GlobalMessage
-        type="error"
-        title="An error ocurred"
-        message={globalMessage}
-        onDismiss={handleGlobalMessageDismiss}
-      />
     </form>
   );
 }
